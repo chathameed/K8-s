@@ -39,6 +39,10 @@ Document Reference : https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkt
           az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
 
           kubectl get nodes
+	 
+	 
+	 
+------------------------------------------------------------------------------------------------------------------------------
 
 Helm has a simple architecture, which is comprised of a client and an in-cluster server:
 
