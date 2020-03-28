@@ -199,3 +199,58 @@ iNGRESS-BASIC   NGINX-INGRESS-CONTROLLER        LOADBALANCER   10.0.3.56     52.
 
 Http://52.188.25.105 to view the actual app running urlwith the external ip of the Ingress controller.
 
+
+
+
+1) create a deployment using the below file 
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: hameedns
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+kubectl apply -f nginxdeployment.yaml
+
+2) create a node port service with the below yaml 
+apiVersion: v1
+kind: Service
+metadata:
+   name: hameednodeportservice
+   namespace: hameedns
+spec:
+   type: NodePort
+   ports:
+     - targetPort: 80
+       port: 80
+       nodePort: 30025
+   selector:
+     app: nginx
+kubectl apply -f createnodeportservice.yaml
+
+
+we cannot expose the service because the nodes doesnt have the external ip so we would need to use LB for exposing the resourceroot@aaetsanandanvm1:~# kubectl get nodes -o wide
+NAME                                STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+aks-agentpool-58930864-vmss000000   Ready    agent   3d10h   v1.15.10   10.240.0.4    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
+aks-agentpool-58930864-vmss000001   Ready    agent   3d10h   v1.15.10   10.240.0.5    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
+aks-agentpool-58930864-vmss000002   Ready    agent   3d10h   v1.15.10   10.240.0.6    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
+root@aaetsanandanvm1:~#
+
+
+
+
+
