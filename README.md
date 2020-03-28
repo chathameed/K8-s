@@ -91,3 +91,111 @@ To verify that Tiller is running, list the pods in thekube-system namespace:
 
 kubectl get pods --namespace kube-system
 
+
+
+
+
+######################################
+
+
+Application deployment
+
+1. Deploying NGINX ingress controller in AKS.
+
+Document reference https://docs.microsoft.com/en-us/azure/aks/ingress-basic
+
+   
+    Create a namespace for your ingress resources
+        kubectl create namespace ingress-basic
+   
+    Adding Repo to Helm for NGINX ingress controller
+    helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+
+   
+    Use Helm to deploy an NGINX ingress controller
+    helm install nginx-ingress stable/nginx-ingress \
+    --namespace ingress-basic \
+    --set controller.replicaCount=2 \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+   
+    Validating Ingress controller in AKS
+    kubectl get service -l app=nginx-ingress --namespace ingress-basic
+   
+2. Installing Hello-World App from AKS Repo.
+
+    Adding repo to Helm.
+    helm repo add azure-samples https://azure-samples.github.io/helm-charts/
+   
+    Deploying Hello-World one  App including services using helm.
+    helm install aks-helloworld azure-samples/aks-helloworld --namespace ingress-basic
+   
+    Deploying Hello-World two  App including services using helm.
+    helm install aks-helloworld-two azure-samples/aks-helloworld \
+    --namespace ingress-basic \
+    --set title="AKS Ingress Demo" \
+    --set serviceName="aks-helloworld-two"
+   
+3. Create  hello-world-ingress with the below file for communicating ingress to Service to Pod.
+
+
+
+####################################
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-ingress
+  namespace: ingress-basic
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: aks-helloworld
+          servicePort: 80
+        path: /(.*)
+      - backend:
+          serviceName: aks-helloworld-two
+          servicePort: 80
+        path: /hello-world-two(/|$)(.*)
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-ingress-static
+  namespace: ingress-basic
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /static/$2
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: aks-helloworld    
+###############################################   
+kubectl apply -f hello-world-ingress.yaml
+
+4. Validation
+
+
+root@aaetsanandanvm1:~# kubectl get svc -A
+NAMESPACE       NAME                            TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)                      AGE
+default         kubernetes                      ClusterIP      10.0.0.1      <none>          443/TCP                      2d11h
+ingress-basic   aks-helloworld                  ClusterIP      10.0.126.26   <none>          80/TCP                       7m27s
+ingress-basic   aks-helloworld-two              ClusterIP      10.0.115.44   <none>          80/TCP                       6m41s
+ingress-basic   nginx-ingress-controller        LoadBalancer   10.0.3.56     52.188.25.105   80:32609/TCP,443:31169/TCP   22m
+ingress-basic   nginx-ingress-default-backend   ClusterIP      10.0.252.21   <none>          80/TCP                       22m
+kube-system     kube-dns                        ClusterIP      10.0.0.10     <none>          53/UDP,53/TCP                2d11h
+kube-system     kubernetes-dashboard            ClusterIP      10.0.96.117   <none>          80/TCP                       2d11h
+kube-system     metrics-server                  ClusterIP      10.0.110.72   <none>          443/TCP                      2d11h
+########
+iNGRESS-BASIC   NGINX-INGRESS-CONTROLLER        LOADBALANCER   10.0.3.56     52.188.25.105   80:32609/TCP,443:31169/TCP   22M
+
+Http://52.188.25.105 to view the actual app running urlwith the external ip of the Ingress controller.
+
