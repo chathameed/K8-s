@@ -184,7 +184,7 @@ kubectl apply -f hello-world-ingress.yaml
 4. Validation
 
 
-root@aaetsanandanvm1:~# kubectl get svc -A
+root@vm001:~# kubectl get svc -A
 NAMESPACE       NAME                            TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)                      AGE
 default         kubernetes                      ClusterIP      10.0.0.1      <none>          443/TCP                      2d11h
 ingress-basic   aks-helloworld                  ClusterIP      10.0.126.26   <none>          80/TCP                       7m27s
@@ -243,14 +243,44 @@ spec:
 kubectl apply -f createnodeportservice.yaml
 
 
-we cannot expose the service because the nodes doesnt have the external ip so we would need to use LB for exposing the resourceroot@aaetsanandanvm1:~# kubectl get nodes -o wide
+we cannot expose the service because the nodes doesnt have the external ip so we would need to use LB for exposing the resourceroot@vm001:~# kubectl get nodes -o wide
 NAME                                STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
 aks-agentpool-58930864-vmss000000   Ready    agent   3d10h   v1.15.10   10.240.0.4    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
 aks-agentpool-58930864-vmss000001   Ready    agent   3d10h   v1.15.10   10.240.0.5    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
 aks-agentpool-58930864-vmss000002   Ready    agent   3d10h   v1.15.10   10.240.0.6    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
-root@aaetsanandanvm1:~#
+root@vm001:~#
 
 
 
+Accessing Kubernetes Dashboard: 
 
+
+Get the port details of any services 
+
+kubectl describe pod kubernetes-dashboard-74d8c675bc-jlbkm -n kube-system |grep -i port
+
+Create cluster role binding to access the dashboard on a AKS cluster:
+kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+
+
+
+Access Kubernetes dashboard:
+
+get the kubedashboard name from below:
+
+kubectl get pods -A
+
+kubectl port-forward  pod/kubernetes-dashboard-74d8c675bc-jlbkm -n kube-system 3000:9090
+
+Access any application on kubernetes: 
+
+kubectl port-forward  pod/petclinic-deployment-54479fb7f7-cnbpt -n petclinic 3000:8080
+
+reference links:
+
+https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard 
+
+az aks browse --resource-group hameedrg --name hameedakscluster01
+
+kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 
