@@ -102,6 +102,8 @@ Application deployment
 ======================
 
 1. Deploying NGINX ingress controller in AKS.
+=============================================
+
 
 Document reference https://docs.microsoft.com/en-us/azure/aks/ingress-basic
 
@@ -203,7 +205,7 @@ iNGRESS-BASIC   NGINX-INGRESS-CONTROLLER        LOADBALANCER   10.0.3.56     52.
 Http://52.188.25.105 to view the actual app running urlwith the external ip of the Ingress controller.
 
 
-
+##############################################################################################################################
 
 1) create a deployment using the below file 
 ===========================================
