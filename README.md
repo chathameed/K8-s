@@ -99,6 +99,7 @@ kubectl get pods --namespace kube-system
 
 
 Application deployment
+======================
 
 1. Deploying NGINX ingress controller in AKS.
 
@@ -123,6 +124,7 @@ Document reference https://docs.microsoft.com/en-us/azure/aks/ingress-basic
     kubectl get service -l app=nginx-ingress --namespace ingress-basic
    
 2. Installing Hello-World App from AKS Repo.
+============================================
 
     Adding repo to Helm.
     helm repo add azure-samples https://azure-samples.github.io/helm-charts/
@@ -182,6 +184,7 @@ spec:
 kubectl apply -f hello-world-ingress.yaml
 
 4. Validation
+==============
 
 
 root@vm001:~# kubectl get svc -A
@@ -203,6 +206,8 @@ Http://52.188.25.105 to view the actual app running urlwith the external ip of t
 
 
 1) create a deployment using the below file 
+===========================================
+
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
@@ -226,7 +231,10 @@ spec:
 
 kubectl apply -f nginxdeployment.yaml
 
+
 2) create a node port service with the below yaml 
+==================================================
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -243,7 +251,10 @@ spec:
 kubectl apply -f createnodeportservice.yaml
 
 
-we cannot expose the service because the nodes doesnt have the external ip so we would need to use LB for exposing the resourceroot@vm001:~# kubectl get nodes -o wide
+we cannot expose the service because the nodes doesnt have the external ip so we would need to use LB for exposing the resource:
+=======================================================================================================================
+
+root@vm001:~# kubectl get nodes -o wide
 NAME                                STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
 aks-agentpool-58930864-vmss000000   Ready    agent   3d10h   v1.15.10   10.240.0.4    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
 aks-agentpool-58930864-vmss000001   Ready    agent   3d10h   v1.15.10   10.240.0.5    <none>        Ubuntu 16.04.6 LTS   4.15.0-1071-azure   docker://3.0.10+azure
@@ -253,30 +264,32 @@ root@vm001:~#
 
 
 Accessing Kubernetes Dashboard: 
-
+================================
 
 Get the port details of any services 
+=====================================
 
 kubectl describe pod kubernetes-dashboard-74d8c675bc-jlbkm -n kube-system |grep -i port
 
 Create cluster role binding to access the dashboard on a AKS cluster:
+=====================================================================
 kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 
 
-
-Access Kubernetes dashboard:
-
 get the kubedashboard name from below:
+=====================================
 
 kubectl get pods -A
 
 kubectl port-forward  pod/kubernetes-dashboard-74d8c675bc-jlbkm -n kube-system 3000:9090
 
 Access any application on kubernetes: 
+=====================================
 
 kubectl port-forward  pod/petclinic-deployment-54479fb7f7-cnbpt -n petclinic 3000:8080
 
 reference links:
+================
 
 https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard 
 
