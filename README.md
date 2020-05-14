@@ -146,17 +146,29 @@ Document reference https://docs.microsoft.com/en-us/azure/aks/ingress-basic
 
 ####################################
 apiVersion: extensions/v1beta1
+
 kind: Ingress
+
 metadata:
+
   name: hello-world-ingress
+  
   namespace: ingress-basic
+  
   annotations:
+  
     kubernetes.io/ingress.class: nginx
+    
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+    
 spec:
+
   rules:
+  
   - http:
+  
       paths:
       - backend:
           serviceName: aks-helloworld
@@ -182,6 +194,8 @@ spec:
       paths:
       - backend:
           serviceName: aks-helloworld    
+	  
+	  
 ###############################################   
 kubectl apply -f hello-world-ingress.yaml
 
